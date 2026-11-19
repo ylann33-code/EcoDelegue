@@ -1,4 +1,4 @@
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyCqvFm9gWunDDTIpmnG8w3QW3Edvv0sIKo",
   authDomain: "eco-delegue.firebaseapp.com",
   databaseURL: "https://eco-delegue-default-rtdb.europe-west1.firebasedatabase.app",
