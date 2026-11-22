@@ -97,12 +97,12 @@ async function start() {
     if (!projectsResponse.ok) throw new Error("Impossible de charger data/projects.json.");
     classes = await classesResponse.json();
     const projectConfig = await projectsResponse.json();
-    const step2 = Array.isArray(projectConfig.projects)
-      ? projectConfig.projects.find(project => project.id === "boites-noel-etape-2")
+    const step1 = Array.isArray(projectConfig.projects)
+      ? projectConfig.projects.find(project => project.id === "boites-noel-etape-1")
       : null;
-    step1Locked = Boolean(step2?.visibleFrom && step2.visibleFrom <= localDateKey());
+    step1Locked = Boolean(step1?.editableUntil && localDateKey() > step1.editableUntil);
     if (step1Locked) {
-      sync.textContent = "Étape 1 clôturée : l’étape 2 est maintenant disponible. La progression reste consultable.";
+      sync.textContent = "La date limite de l’étape 1 est dépassée : les validations sont clôturées. La progression reste consultable.";
     }
     db = await connectFirebase();
     onValue(ref(db, "boitesNoel/status"), snapshot => {
@@ -110,7 +110,7 @@ async function start() {
       for (const [id, pending] of pendingStates) statuses[id] = pending;
       render();
       sync.textContent = step1Locked
-        ? "Étape 1 clôturée : consultation uniquement. Les changements des autres utilisateurs restent visibles."
+        ? "Date limite dépassée : consultation uniquement. Les changements des autres utilisateurs restent visibles."
         : "Connecté : les changements des autres utilisateurs apparaissent automatiquement.";
     }, error => {
       sync.textContent = "Erreur de lecture Firebase : vérifiez les règles de la base de données.";
