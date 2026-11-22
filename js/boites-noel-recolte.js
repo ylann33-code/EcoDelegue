@@ -6,6 +6,7 @@ const submit = $("harvest-submit");
 let db = null;
 let currentTotal = 0;
 let historyEntries = [];
+let editingClosed = false;
 
 function frenchDate(timestamp) {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -75,7 +76,40 @@ function renderTotal(data) {
   renderHistory();
 }
 
+function localParisDateKey() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return values.year + '-' + values.month + '-' + values.day;
+}
+
+async function isEditingDateExpired() {
+  try {
+    const response = await fetch('data/projects.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Dates du projet indisponibles');
+    const config = await response.json();
+    const project = Array.isArray(config.projects) ? config.projects.find(item => item.id === 'boites-noel-etape-2') : null;
+    return Boolean(project && project.editableUntil && localParisDateKey() > project.editableUntil);
+  } catch (error) {
+    console.error('Vérification de la date limite impossible :', error);
+    return true;
+  }
+}
+
+function applyEditingLock(projects) {
+  const project = Array.isArray(projects) ? projects.find(item => item.id === 'boites-noel-etape-2') : null;
+  editingClosed = Boolean(project && project.editableUntil && localParisDateKey() > project.editableUntil);
+  if (editingClosed) {
+    form.querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+    $('harvest-status').textContent = 'La date limite du 12 décembre 2026 est dépassée : le compteur est en consultation uniquement.';
+  }
+}
 async function saveNewTotal(newTotal, code) {
+  if (editingClosed || await isEditingDateExpired()) {
+    editingClosed = true;
+    throw new Error('La date limite de modification est dépassée. Le compteur est en consultation uniquement.');
+  }
   const passwordSnapshot = await get(ref(db, "motDePasse"));
   const savedPassword = passwordSnapshot.val();
   if (typeof savedPassword !== "string" || !/^\d{8}$/.test(savedPassword)) {
@@ -111,6 +145,12 @@ async function saveNewTotal(newTotal, code) {
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
+  if (editingClosed || await isEditingDateExpired()) {
+    editingClosed = true;
+    form.querySelectorAll('input, button').forEach(control => { control.disabled = true; });
+    $('harvest-status').textContent = 'La date limite de modification est dépassée. Le compteur est en consultation uniquement.';
+    return;
+  }
   const newTotal = Number($("new-total").value);
   const code = $("harvest-code").value.trim();
   if (!Number.isSafeInteger(newTotal) || newTotal < 0) {
@@ -147,6 +187,10 @@ form.addEventListener("submit", async event => {
 
 async function start() {
   try {
+    const projectsResponse = await fetch('data/projects.json', { cache: 'no-store' });
+    if (!projectsResponse.ok) throw new Error('Impossible de charger les dates du projet.');
+    const projectConfig = await projectsResponse.json();
+    applyEditingLock(projectConfig.projects);
     db = await connectFirebase();
     onValue(ref(db, "boitesNoelEtape2"), snapshot => {
       renderTotal(snapshot.val() || {});

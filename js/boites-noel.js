@@ -9,6 +9,7 @@ let statuses = {};
 let currentFilter = "all";
 let db = null;
 let step1Locked = false;
+let step1EditableUntil = null;
 let busy = new Set();
 const pendingStates = new Map();
 
@@ -67,7 +68,13 @@ function render() {
   });
 }
 async function updateStatus(id, completed) {
-  if (!db || busy.has(id) || step1Locked) return;
+  if (!db || busy.has(id)) return;
+  if (step1Locked || (step1EditableUntil && localDateKey() > step1EditableUntil)) {
+    step1Locked = true;
+    sync.textContent = "La date limite de l’étape 1 est dépassée : les validations sont clôturées. La progression reste consultable.";
+    render();
+    return;
+  }
   const previous = statuses[id] ? { ...statuses[id] } : {};
   const next = { completed, updatedAt: Date.now() };
   busy.add(id);
@@ -97,12 +104,13 @@ async function start() {
     if (!projectsResponse.ok) throw new Error("Impossible de charger data/projects.json.");
     classes = await classesResponse.json();
     const projectConfig = await projectsResponse.json();
-    const step2 = Array.isArray(projectConfig.projects)
-      ? projectConfig.projects.find(project => project.id === "boites-noel-etape-2")
+    const step1 = Array.isArray(projectConfig.projects)
+      ? projectConfig.projects.find(project => project.id === "boites-noel-etape-1")
       : null;
-    step1Locked = Boolean(step2?.visibleFrom && step2.visibleFrom <= localDateKey());
+    step1EditableUntil = step1?.editableUntil || null;
+    step1Locked = Boolean(step1EditableUntil && localDateKey() > step1EditableUntil);
     if (step1Locked) {
-      sync.textContent = "Étape 1 clôturée : l’étape 2 est maintenant disponible. La progression reste consultable.";
+      sync.textContent = "La date limite de l’étape 1 est dépassée : les validations sont clôturées. La progression reste consultable.";
     }
     db = await connectFirebase();
     onValue(ref(db, "boitesNoel/status"), snapshot => {
@@ -110,7 +118,7 @@ async function start() {
       for (const [id, pending] of pendingStates) statuses[id] = pending;
       render();
       sync.textContent = step1Locked
-        ? "Étape 1 clôturée : consultation uniquement. Les changements des autres utilisateurs restent visibles."
+        ? "Date limite dépassée : consultation uniquement. Les changements des autres utilisateurs restent visibles."
         : "Connecté : les changements des autres utilisateurs apparaissent automatiquement.";
     }, error => {
       sync.textContent = "Erreur de lecture Firebase : vérifiez les règles de la base de données.";

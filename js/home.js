@@ -5,7 +5,25 @@ const $ = id => document.getElementById(id);
 const projectIcons = {
   gift: '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M2 9h20v4H2zM12 9v12M12 9c-5 0-7-1-7-4 0-2 2-3 4-2 2 1 3 6 3 6Zm0 0c5 0 7-1 7-4 0-2-2-3-4-2-2 1-3 6-3 6Z"/>',
   leaf: '<path d="M20 4C10 4 4 8 4 15a5 5 0 0 0 5 5c7 0 11-7 11-16Z"/><path d="M3 21c4-6 8-9 14-13"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+  sprout: '<path d="M12 21v-9"/><path d="M12 13C5 13 3 9 4 4c5 0 9 2 8 9Z"/><path d="M12 16c0-5 3-8 8-8 1 5-2 8-8 8Z"/>',
+  recycle: '<path d="m7 7 2-3h6l2 3"/><path d="m17 7 2 3-2 3"/><path d="M19 10h-5"/><path d="m17 17-2 3H9l-2-3"/><path d="m7 17-2-3 2-3"/><path d="M5 14h5"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>',
+  water: '<path d="M12 3C9 7 5 11 5 15a7 7 0 0 0 14 0c0-4-4-8-7-12Z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
+  wind: '<path d="M3 8h12a3 3 0 1 0-3-3"/><path d="M2 12h17a2 2 0 1 1-2 2"/><path d="M4 16h8a3 3 0 1 1-3 3"/>',
+  tree: '<path d="M12 22v-7"/><path d="m12 3 5 6h-3l5 6H5l5-6H7l5-6Z"/>',
+  flower: '<path d="M12 13v9"/><path d="M12 8c-4-6-8 0-2 3-7 1-4 8 2 4 1 7 8 4 4-2 6-3 1-9-4-5Z"/><circle cx="12" cy="12" r="1.5"/>',
+  bike: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m6 17 4-7 4 7H6Zm4-7h4m-1-3h3m-5 3 3 7"/>',
+  school: '<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-6h6v6M7 11h.01M12 11h.01M17 11h.01"/>',
+  heart: '<path d="M20.8 8.8c0 5-8.8 11-8.8 11s-8.8-6-8.8-11A4.8 4.8 0 0 1 12 6a4.8 4.8 0 0 1 8.8 2.8Z"/>',
+  hands: '<path d="m3 12 4-4 5 2 5-2 4 4-7 8-4-3-3 1-4-6Z"/><path d="m7 8 2-3 4 2 3-2 3 3"/>',
+  book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M4 5.5v14A2.5 2.5 0 0 1 6.5 17H20M8 7h8"/>',
+  bottle: '<path d="M9 3h6v3l2 2v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8l2-2z"/><path d="M9 6h6M7 13h10"/>',
+  trash: '<path d="M4 7h16M10 3h4M6 7l1 14h10l1-14M10 11v6m4-6v6"/>',
+  food: '<path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M16 3v18m0-18c3 3 4 7 0 10"/>',
+  community: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0m0-2a5 5 0 0 1 7 2"/>',
+  seed: '<path d="M12 21v-8"/><path d="M12 13C4 13 4 5 5 4c7 0 9 4 7 9Z"/><path d="M12 16c0-5 4-8 8-8 1 5-2 8-8 8Z"/>'
 };
 
 function localDateKey(date = new Date()) {
