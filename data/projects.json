@@ -11,7 +11,8 @@
       "status": "ACTION EN COURS",
       "dates": "A partir du 19 novembre",
       "visibleFrom": "2026-11-19",
-      "progressSource": "boitesNoel"
+      "progressSource": "boitesNoel",
+      "editableUntil": "2026-11-28"
     },
     {
       "id": "boites-noel-etape-2",
@@ -23,7 +24,8 @@
       "status": "COLLECTE",
       "dates": "Du 30 novembre au 9 décembre 2026",
       "visibleFrom": "2026-11-29",
-      "progressSource": "boitesNoelEtape2"
+      "progressSource": "boitesNoelEtape2",
+      "editableUntil": "2026-12-12"
     }
   ]
 }
