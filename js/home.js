@@ -143,7 +143,10 @@ async function loadChristmasHarvestTotal() {
           await animateHarvestCount(0, previous, Math.min(1500, 500 + previous * 12));
           const badge = document.createElement("span");
           badge.className = "harvest-added-badge";
-          badge.textContent = "+" + Number(latest.added).toLocaleString("fr-FR") + " aujourd’hui";
+          const addedLabel = localDateKey(new Date(Number(latest.updatedAt))) === localDateKey()
+            ? " aujourd’hui"
+            : " au dernier ajout";
+          badge.textContent = "+" + Number(latest.added).toLocaleString("fr-FR") + addedLabel;
           if (progress && !progress.querySelector(".harvest-added-badge")) progress.append(badge);
           await new Promise(resolve => setTimeout(resolve, 850));
           await animateHarvestCount(previous, total, 1200);
