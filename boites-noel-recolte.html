@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#073f2d">
+  <title>Opération boîtes de Noël – Étape 2 | Éco-délégués</title>
+  <link rel="icon" href="icone/logo-college.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html"><span><strong>Éco-délégués</strong><small>Collège Olympe de Gouges · Cadaujac</small></span></a>
+  <div class="top-title"><strong>Le tableau de bord <em>des éco-délégués</em></strong></div>
+  <div class="school-year">ANNÉE SCOLAIRE<strong>2026 – 2027</strong></div>
+</header>
+<aside class="sidebar">
+  <a class="sidebar-brand" href="index.html" aria-label="Accueil des éco-délégués"><img src="icone/logo-ecodelegues.png" alt="Logo des éco-délégués"></a>
+  <a class="side-link" href="index.html"><span>Accueil</span></a>
+  <a class="side-link" href="calendrier.html"><span>Calendrier</span></a>
+  <a class="side-link" href="messagerie.html"><span>Messagerie</span></a>
+  <a class="side-link" href="documents.html"><span>Documents</span></a>
+</aside>
+<main class="page-shell">
+  <div class="page-heading">
+    <p class="eyebrow">SUIVI DE LA COLLECTE</p>
+    <h1>Opération boîtes de Noël – Étape 2</h1>
+    <p>Suivez le nombre de boîtes récoltées au fil des jours. Le compteur et l’historique sont actualisés automatiquement pour tous les visiteurs.</p>
+  </div>
+
+  <section class="content-card harvest-total-card">
+    <span class="summary-label">TOTAL DES BOÎTES RÉCOLTÉES</span>
+    <strong id="harvest-total" class="harvest-total">0</strong>
+    <span id="harvest-label" class="harvest-label">boîte récoltée</span>
+    <p id="harvest-updated" class="muted">Connexion au compteur…</p>
+  </section>
+
+  <div class="harvest-stats">
+    <section class="content-card"><span class="summary-label">Ajoutées aujourd’hui</span><strong id="today-added">0</strong><small>boîte(s)</small></section>
+    <section class="content-card"><span class="summary-label">Meilleure journée</span><strong id="best-day">0</strong><small>boîte(s) ajoutée(s)</small></section>
+  </div>
+
+  <section class="content-card harvest-update-card">
+    <h2>Mettre à jour le compteur</h2>
+    <p class="muted">Indique le nouveau total de boîtes récoltées (et non le nombre ajouté aujourd’hui).</p>
+    <form id="harvest-form" class="form-grid">
+      <div class="field">
+        <label for="new-total">Nouveau total de boîtes</label>
+        <input id="new-total" type="number" min="0" step="1" inputmode="numeric" required>
+      </div>
+      <div class="field">
+        <label for="harvest-code">Code de modification (3 chiffres)</label>
+        <input id="harvest-code" type="password" inputmode="numeric" pattern="[0-9]{3}" maxlength="3" autocomplete="off" required>
+      </div>
+      <div class="field wide">
+        <button class="button" id="harvest-submit" type="submit">Enregistrer le nouveau total</button>
+      </div>
+    </form>
+    <p id="harvest-status" class="admin-status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="content-card">
+    <div class="card-heading"><h2>Historique des mises à jour</h2></div>
+    <div id="harvest-history"><p class="empty">Chargement de l’historique…</p></div>
+  </section>
+  <footer class="footer">Éco-délégués · Collège Olympe de Gouges · Année scolaire 2026–2027</footer>
+</main>
+<script type="module" src="js/boites-noel-recolte.js"></script>
+</body>
+</html>
