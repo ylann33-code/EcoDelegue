@@ -8,14 +8,20 @@ const projectIcons = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'
 };
 
+function localDateKey(date = new Date()) {
+  return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+}
+
 function renderProjects(projects) {
   const container = $("project-list");
   if (!container) return;
+  const today = localDateKey();
   const validProjects = projects.filter(project =>
     project && typeof project.title === "string" &&
     typeof project.page === "string" &&
     /^[a-zA-Z0-9_./-]+\.html$/.test(project.page) &&
-    !project.page.startsWith("/") && !project.page.split("/").includes("..")
+    !project.page.startsWith("/") && !project.page.split("/").includes("..") &&
+    (!project.visibleFrom || project.visibleFrom <= today)
   );
   if (!validProjects.length) {
     container.innerHTML = '<p class="empty">Aucun projet pour le moment.</p>';
@@ -57,8 +63,11 @@ async function loadProjects() {
     if (!response.ok) throw new Error("Catalogue des projets indisponible");
     const config = await response.json();
     if (!config || !Array.isArray(config.projects)) throw new Error("Format du catalogue invalide");
+    const today = localDateKey();
+    const visibleProjects = config.projects.filter(project => !project.visibleFrom || project.visibleFrom <= today);
     renderProjects(config.projects);
-    const featured = config.projects.find(project => project.id === config.featuredProjectId) || config.projects[0];
+    const featured = [...visibleProjects].sort((a,b) => (b.visibleFrom || "").localeCompare(a.visibleFrom || ""))[0]
+      || config.projects.find(project => project.id === config.featuredProjectId);
     if (featured) {
       if ($("project-title")) $("project-title").textContent = featured.title;
       if ($("project-description")) $("project-description").textContent = featured.description || "";
@@ -66,6 +75,7 @@ async function loadProjects() {
       const badge = document.querySelector(".hero .pill");
       if (badge) badge.textContent = featured.status || "PROJET À LA UNE";
       if (featured.progressSource === "boitesNoel") loadChristmasProgress();
+      else if (featured.progressSource === "boitesNoelEtape2") loadChristmasHarvestTotal();
       else {
         const progress = document.querySelector(".hero-progress");
         if (progress) progress.hidden = true;
@@ -76,6 +86,23 @@ async function loadProjects() {
   } catch (error) {
     console.error("Chargement des projets impossible :", error);
     if (container) container.innerHTML = '<p class="empty">Impossible de charger les projets.</p>';
+  }
+}
+
+async function loadChristmasHarvestTotal() {
+  try {
+    const db = await connectFirebase();
+    const progress = document.querySelector(".hero-progress");
+    const track = document.querySelector(".hero-progress .progress-track");
+    if (track) track.hidden = true;
+    onValue(ref(db, "boitesNoelEtape2/currentTotal"), snapshot => {
+      const total = Number(snapshot.val() || 0);
+      if ($("progress-percent")) $("progress-percent").textContent = total.toLocaleString("fr-FR") + (total > 1 ? " boîtes" : " boîte");
+      if (progress) progress.setAttribute("aria-label", "Nombre de boîtes récoltées");
+    }, error => console.error("Lecture du compteur de boîtes :", error));
+  } catch (error) {
+    console.error("Initialisation du compteur de boîtes impossible :", error);
+    if ($("progress-percent")) $("progress-percent").textContent = "— boîte";
   }
 }
 
