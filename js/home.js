@@ -23,6 +23,7 @@ function renderProjects(projects) {
     !project.page.startsWith("/") && !project.page.split("/").includes("..") &&
     (!project.visibleFrom || project.visibleFrom <= today)
   );
+  validProjects.sort((a, b) => (b.visibleFrom || "").localeCompare(a.visibleFrom || ""));
   if (!validProjects.length) {
     container.innerHTML = '<p class="empty">Aucun projet pour le moment.</p>';
     return;
@@ -89,6 +90,31 @@ async function loadProjects() {
   }
 }
 
+function formatHarvestCount(value) {
+  const count = Math.max(0, Math.round(Number(value) || 0));
+  return count.toLocaleString("fr-FR") + (count > 1 ? " boîtes" : " boîte");
+}
+
+function animateHarvestCount(from, to, duration = 1400) {
+  const output = $("progress-percent");
+  if (!output) return Promise.resolve();
+  const start = performance.now();
+  const difference = to - from;
+  return new Promise(resolve => {
+    function frame(now) {
+      const ratio = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - ratio, 3);
+      output.textContent = formatHarvestCount(from + difference * eased);
+      if (ratio < 1) requestAnimationFrame(frame);
+      else {
+        output.textContent = formatHarvestCount(to);
+        resolve();
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
 async function loadChristmasHarvestTotal() {
   try {
     const db = await connectFirebase();
@@ -103,9 +129,34 @@ async function loadChristmasHarvestTotal() {
       rain.innerHTML = '<span>🎁</span><span>🎄</span><span>🎁</span><span>✨</span><span>🎁</span><span>⭐</span><span>🎁</span>';
       hero.append(rain);
     }
-    onValue(ref(db, "boitesNoelEtape2/currentTotal"), snapshot => {
-      const total = Number(snapshot.val() || 0);
-      if ($("progress-percent")) $("progress-percent").textContent = total.toLocaleString("fr-FR") + (total > 1 ? " boîtes" : " boîte");
+    let firstSnapshot = true;
+    onValue(ref(db, "boitesNoelEtape2"), async snapshot => {
+      const data = snapshot.val() || {};
+      const total = Math.max(0, Number(data.currentTotal || 0));
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        const latest = Object.values(data.history || {})
+          .filter(entry => entry && Number.isFinite(Number(entry.updatedAt)))
+          .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))[0];
+        if (latest && Number(latest.total) === total && Number(latest.added) > 0) {
+          const previous = Math.max(0, Number(latest.previousTotal ?? (total - Number(latest.added))));
+          await animateHarvestCount(0, previous, Math.min(1500, 500 + previous * 12));
+          const badge = document.createElement("span");
+          badge.className = "harvest-added-badge";
+          const addedLabel = localDateKey(new Date(Number(latest.updatedAt))) === localDateKey()
+            ? " aujourd’hui"
+            : " au dernier ajout";
+          badge.textContent = "+" + Number(latest.added).toLocaleString("fr-FR") + addedLabel;
+          if (progress && !progress.querySelector(".harvest-added-badge")) progress.append(badge);
+          await new Promise(resolve => setTimeout(resolve, 850));
+          await animateHarvestCount(previous, total, 1200);
+          window.setTimeout(() => badge.remove(), 3500);
+        } else {
+          await animateHarvestCount(0, total, 1500);
+        }
+      } else if ($("progress-percent")) {
+        $("progress-percent").textContent = formatHarvestCount(total);
+      }
       if (progress) progress.setAttribute("aria-label", "Nombre de boîtes récoltées");
     }, error => console.error("Lecture du compteur de boîtes :", error));
   } catch (error) {

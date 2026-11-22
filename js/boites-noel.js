@@ -8,6 +8,7 @@ let classes = [];
 let statuses = {};
 let currentFilter = "all";
 let db = null;
+let step1Locked = false;
 let busy = new Set();
 const pendingStates = new Map();
 
@@ -29,6 +30,9 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function isDone(id) { return statuses[id]?.completed === true; }
+function localDateKey(date = new Date()) {
+  return [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+}
 
 function render() {
   const query = search.value.trim().toLocaleLowerCase("fr");
@@ -49,7 +53,7 @@ function render() {
         <strong class="class-name">${escapeHtml(item.name)}</strong>
         <div class="class-meta">${formatSchedule(item)}</div>
         <div class="class-people"><strong>ÉCO-DÉLÉGUÉS</strong>${people}</div>
-        <label class="class-check"><input type="checkbox" data-check="${escapeHtml(item.id)}" ${done ? "checked" : ""} ${busy.has(item.id) ? "disabled" : ""}><span>${done ? "Terminée" : "Valider"}</span></label>
+        <label class="class-check"><input type="checkbox" data-check="${escapeHtml(item.id)}" ${done ? "checked" : ""} ${busy.has(item.id) || step1Locked ? "disabled" : ""}><span>${done ? "Terminée" : "Valider"}</span></label>
       </article>`;
     }).join("");
   }
@@ -63,7 +67,7 @@ function render() {
   });
 }
 async function updateStatus(id, completed) {
-  if (!db || busy.has(id)) return;
+  if (!db || busy.has(id) || step1Locked) return;
   const previous = statuses[id] ? { ...statuses[id] } : {};
   const next = { completed, updatedAt: Date.now() };
   busy.add(id);
@@ -85,15 +89,29 @@ async function updateStatus(id, completed) {
 }
 async function start() {
   try {
-    const response = await fetch("data/classes.json");
-    if (!response.ok) throw new Error("Impossible de charger data/classes.json.");
-    classes = await response.json();
+    const [classesResponse, projectsResponse] = await Promise.all([
+      fetch("data/classes.json"),
+      fetch("data/projects.json")
+    ]);
+    if (!classesResponse.ok) throw new Error("Impossible de charger data/classes.json.");
+    if (!projectsResponse.ok) throw new Error("Impossible de charger data/projects.json.");
+    classes = await classesResponse.json();
+    const projectConfig = await projectsResponse.json();
+    const step2 = Array.isArray(projectConfig.projects)
+      ? projectConfig.projects.find(project => project.id === "boites-noel-etape-2")
+      : null;
+    step1Locked = Boolean(step2?.visibleFrom && step2.visibleFrom <= localDateKey());
+    if (step1Locked) {
+      sync.textContent = "Étape 1 clôturée : l’étape 2 est maintenant disponible. La progression reste consultable.";
+    }
     db = await connectFirebase();
     onValue(ref(db, "boitesNoel/status"), snapshot => {
       statuses = snapshot.val() || {};
       for (const [id, pending] of pendingStates) statuses[id] = pending;
       render();
-      sync.textContent = "Connecté : les changements des autres utilisateurs apparaissent automatiquement.";
+      sync.textContent = step1Locked
+        ? "Étape 1 clôturée : consultation uniquement. Les changements des autres utilisateurs restent visibles."
+        : "Connecté : les changements des autres utilisateurs apparaissent automatiquement.";
     }, error => {
       sync.textContent = "Erreur de lecture Firebase : vérifiez les règles de la base de données.";
       console.error(error);
