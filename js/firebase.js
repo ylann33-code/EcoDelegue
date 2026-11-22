@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import { getDatabase, ref, onValue, get, set, push, query, orderByChild } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, set, push, query, orderByChild, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 export const app = initializeApp(firebaseConfig);
@@ -14,4 +14,4 @@ export async function connectFirebase() {
   await signInAnonymously(auth);
   return db;
 }
-export { ref, onValue, get, set, push, query, orderByChild };
+export { ref, onValue, get, set, push, query, orderByChild, runTransaction };
