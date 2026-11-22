@@ -9,6 +9,7 @@ let statuses = {};
 let currentFilter = "all";
 let db = null;
 let step1Locked = false;
+let step1EditableUntil = null;
 let busy = new Set();
 const pendingStates = new Map();
 
@@ -67,7 +68,13 @@ function render() {
   });
 }
 async function updateStatus(id, completed) {
-  if (!db || busy.has(id) || step1Locked) return;
+  if (!db || busy.has(id)) return;
+  if (step1Locked || (step1EditableUntil && localDateKey() > step1EditableUntil)) {
+    step1Locked = true;
+    sync.textContent = "La date limite de l’étape 1 est dépassée : les validations sont clôturées. La progression reste consultable.";
+    render();
+    return;
+  }
   const previous = statuses[id] ? { ...statuses[id] } : {};
   const next = { completed, updatedAt: Date.now() };
   busy.add(id);
@@ -100,7 +107,8 @@ async function start() {
     const step1 = Array.isArray(projectConfig.projects)
       ? projectConfig.projects.find(project => project.id === "boites-noel-etape-1")
       : null;
-    step1Locked = Boolean(step1?.editableUntil && localDateKey() > step1.editableUntil);
+    step1EditableUntil = step1?.editableUntil || null;
+    step1Locked = Boolean(step1EditableUntil && localDateKey() > step1EditableUntil);
     if (step1Locked) {
       sync.textContent = "La date limite de l’étape 1 est dépassée : les validations sont clôturées. La progression reste consultable.";
     }
