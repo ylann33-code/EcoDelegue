@@ -46,3 +46,9 @@
 @keyframes gift-fall{0%{transform:translate3d(0,-15px,0) rotate(-15deg);opacity:0}12%{opacity:.8}88%{opacity:.7}100%{transform:translate3d(25px,230px,0) rotate(35deg);opacity:0}}
 .hero>div:not(.gift-rain){position:relative;z-index:1}
 @media(prefers-reduced-motion:reduce){.gift-rain span{animation:none;display:none}}
+
+/* Animation du compteur de récolte sur la bannière d'accueil */
+.harvest-added-badge{display:block;width:max-content;max-width:100%;margin:0 0 10px auto;padding:6px 12px;border-radius:999px;background:#b7e88a;color:#174b2e;font-size:13px;font-weight:800;box-shadow:0 4px 12px #001b1230;animation:harvest-badge-pop .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes harvest-badge-pop{0%{opacity:0;transform:translateY(8px) scale(.85)}70%{opacity:1;transform:translateY(-2px) scale(1.04)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:760px){.harvest-added-badge{margin-left:0;margin-right:auto}}
+@media(prefers-reduced-motion:reduce){.harvest-added-badge{animation:none}}
