@@ -1,0 +1,16 @@
+{
+  "featuredProjectId": "boites-noel-etape-1",
+  "projects": [
+    {
+      "id": "boites-noel-etape-1",
+      "title": "Opération boîtes de Noël – Étape 1",
+      "description": "Collecte des boîtes au bénéfice des personnes dans le besoin !",
+      "shortDescription": "Suivi des interventions dans les classes",
+      "page": "boites-noel.html",
+      "icon": "gift",
+      "status": "ACTION EN COURS",
+      "dates": "Du 30 novembre au 9 décembre 2026",
+      "progressSource": "boitesNoel"
+    }
+  ]
+}
