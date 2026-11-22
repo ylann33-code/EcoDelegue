@@ -9,16 +9,21 @@ let statuses = {};
 let currentFilter = "all";
 let db = null;
 let busy = new Set();
+const pendingStates = new Map();
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { day:"numeric", month:"long", year:"numeric" });
 
 function formatSchedule(item) {
-  if (!item.date) return '<span class="muted">Date à compléter</span>';
-  const d = new Date(item.date + "T12:00:00");
-  const date = dateFormatter.format(d);
-  const time = item.time ? ` à ${escapeHtml(item.time.replace(":", "h"))}` : "";
-  const room = item.room ? ` · salle ${escapeHtml(item.room)}` : "";
-  return `<b>${escapeHtml(date)}${time}</b>${room}`;
+  const parts = [];
+  if (item.date) {
+    const d = new Date(item.date + "T12:00:00");
+    parts.push(dateFormatter.format(d));
+  } else {
+    parts.push("Date à compléter");
+  }
+  if (item.time) parts.push(escapeHtml(item.time.replace(":", "h")));
+  if (item.room) parts.push(`salle ${escapeHtml(item.room)}`);
+  return `<b>${parts.join(" · ")}</b>`;
 }
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -49,7 +54,7 @@ function render() {
     }).join("");
   }
   const doneCount = classes.filter(item => isDone(item.id)).length;
-  const ratio = Math.round(doneCount / classes.length * 100);
+  const ratio = classes.length ? Math.round(doneCount / classes.length * 100) : 0;
   document.getElementById("summary-count").textContent = `${doneCount} / ${classes.length}`;
   document.getElementById("summary-fill").style.width = ratio + "%";
   document.getElementById("summary-percent").textContent = ratio + " %";
@@ -59,18 +64,23 @@ function render() {
 }
 async function updateStatus(id, completed) {
   if (!db || busy.has(id)) return;
-  busy.add(id); render();
+  const previous = statuses[id] ? { ...statuses[id] } : {};
+  const next = { completed, updatedAt: Date.now() };
+  busy.add(id);
+  pendingStates.set(id, next);
+  statuses[id] = next;
+  render();
   try {
-    await set(ref(db, `boitesNoel/status/${id}`), {
-      completed,
-      updatedAt: Date.now()
-    });
+    await set(ref(db, `boitesNoel/status/${id}`), next);
     sync.textContent = "Progression synchronisée.";
   } catch (error) {
+    statuses[id] = previous;
     sync.textContent = "Enregistrement impossible. Vérifiez les règles Firebase et votre connexion.";
     console.error(error);
   } finally {
+    pendingStates.delete(id);
     busy.delete(id);
+    render();
   }
 }
 async function start() {
@@ -81,6 +91,7 @@ async function start() {
     db = await connectFirebase();
     onValue(ref(db, "boitesNoel/status"), snapshot => {
       statuses = snapshot.val() || {};
+      for (const [id, pending] of pendingStates) statuses[id] = pending;
       render();
       sync.textContent = "Connecté : les changements des autres utilisateurs apparaissent automatiquement.";
     }, error => {

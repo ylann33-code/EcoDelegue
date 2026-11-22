@@ -7,25 +7,33 @@ const message = document.getElementById("progress-message");
 
 async function start() {
   try {
+    const response = await fetch("data/classes.json");
+    if (!response.ok) throw new Error("Impossible de charger data/classes.json.");
+    const classes = await response.json();
     const db = await connectFirebase();
     onValue(ref(db, "boitesNoel/status"), snapshot => {
-      const data = snapshot.val() || {};
-      const done = Object.values(data).filter(item => item && item.completed === true).length;
-      const total = 20;
-      const ratio = Math.min(100, Math.round(done / total * 100));
-      fill.style.width = ratio + "%";
-      count.textContent = `${done} / ${total} classes validées`;
-      percent.textContent = ratio + " %";
-      message.textContent = done === total ? "Toutes les classes ont été présentées. Bravo !" :
-        done === 0 ? "Les passages réalisés apparaîtront ici en temps réel." :
-        "La progression est synchronisée pour tous les éco-délégués.";
+      const statuses = snapshot.val() || {};
+      const done = Array.isArray(classes)
+        ? classes.filter(item => statuses[item.id]?.completed === true).length
+        : 0;
+      const total = Array.isArray(classes) ? classes.length : 0;
+      const ratio = total ? Math.min(100, Math.round(done / total * 100)) : 0;
+      if (fill) fill.style.width = ratio + "%";
+      if (count) count.textContent = `${done} / ${total} classes validées`;
+      if (percent) percent.textContent = ratio + " %";
+      if (message) message.textContent = done === total && total > 0
+        ? "Toutes les classes ont été présentées. Bravo !"
+        : done === 0
+          ? "Les passages réalisés apparaîtront ici en temps réel."
+          : "La progression est synchronisée pour tous les éco-délégués.";
     }, error => {
-      message.textContent = "Impossible de lire la progression. Vérifiez les règles Firebase.";
+      if (message) message.textContent = "Impossible de lire la progression. Vérifiez les règles Firebase.";
       console.error(error);
     });
   } catch (error) {
-    message.textContent = error.message;
+    if (message) message.textContent = error.message;
     console.error(error);
   }
 }
+
 start();

@@ -1,58 +1,13 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123d32">
-  <title>Boîtes de Noël | Éco-délégués</title>
-  <link rel="icon" type="image/png" href="icone/logo-college.png">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="index.html">
-      <img src="icone/logo-college.png" alt="Logo du collège" class="school-logo" onerror="this.style.display='none'">
-      <span><strong>Éco-délégués</strong><small>Collège Olympe de Gouges</small></span>
-    </a>
-    <nav aria-label="Navigation principale">
-      <a class="nav-link" href="index.html">Accueil</a>
-      <a class="nav-link active" href="boites-noel.html">Boîtes de Noël</a>
-    </nav>
-    <span class="live-status"><i></i> Espace partagé</span>
-  </header>
-
-  <main class="page-shell">
-    <a class="back-link" href="index.html">← Retour au tableau de bord</a>
-    <section class="list-intro">
-      <p class="eyebrow">SUIVI DES INTERVENTIONS</p>
-      <h1>Opération <span>boîtes de Noël.</span></h1>
-      <p class="intro">Retrouvez les passages prévus dans chaque classe. Cochez une classe lorsque la présentation a été effectuée : la progression sera actualisée pour tous les utilisateurs.</p>
-    </section>
-
-    <section class="list-summary">
-      <div><span class="summary-label">Classes validées</span><strong id="summary-count">0 / 20</strong></div>
-      <div class="mini-progress"><div id="summary-fill"></div></div>
-      <span id="summary-percent" class="summary-percent">0 %</span>
-    </section>
-
-    <div class="toolbar">
-      <div class="filters" role="group" aria-label="Filtrer les classes">
-        <button class="filter-button selected" data-filter="all">Toutes</button>
-        <button class="filter-button" data-filter="todo">À faire</button>
-        <button class="filter-button" data-filter="done">Terminées</button>
-      </div>
-      <label class="search-box"><span class="sr-only">Rechercher une classe</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-        <input id="class-search" type="search" placeholder="Rechercher une classe…">
-      </label>
-    </div>
-
-    <div id="class-list" class="class-list" aria-live="polite">
-      <div class="loading-card">Chargement des classes…</div>
-    </div>
-    <p id="sync-status" class="sync-status" role="status">Connexion à la base de données…</p>
-    <footer><span>Éco-délégués · Collège Olympe de Gouges</span><span>Les modifications sont partagées en temps réel.</span></footer>
-  </main>
-  <script type="module" src="js/boites-noel.js"></script>
-</body>
-</html>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#073f2d"><title>Opération boîtes de Noël | Éco-délégués</title><link rel="icon" href="icone/logo-college.png"><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar">
+  <a class="brand" href="index.html"><span><strong>Éco-délégués</strong><small>Collège Olympe de Gouges · Cadaujac</small></span></a>
+  <div class="top-title"><strong>Le tableau de bord <em>des éco-délégués</em></strong></div>
+  <div class="school-year">ANNÉE SCOLAIRE<strong>2026 – 2027</strong></div>
+</header><aside class="sidebar"><a class="sidebar-brand" href="index.html" aria-label="Accueil des éco-délégués"><img src="icone/logo-ecodelegues.png" alt="Logo des éco-délégués"></a>
+ <a class="side-link active" href="index.html" data-page="home"><svg class="" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></a>
+ <a class="side-link " href="calendrier.html" data-page="calendar"><svg class="" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Calendrier</span></a>
+ <a class="side-link " href="messagerie.html" data-page="messages"><svg class="" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg><span>Messagerie</span></a>
+ <a class="side-link " href="documents.html" data-page="docs"><svg class="" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Documents</span></a>
+</aside><main class="page-shell"><div class="page-heading"><p class="eyebrow">SUIVI DES INTERVENTIONS</p><h1>Opération boîtes de Noël</h1><p>Du 30 novembre au 9 décembre 2026. Retrouvez les passages prévus dans chaque classe et cochez une classe lorsque la présentation a été effectuée : la progression est actualisée en temps réel pour les utilisateurs connectés.</p></div>
+<section class="list-summary content-card"><div><span class="summary-label">Classes validées</span><strong id="summary-count">0 / 0</strong></div><div class="mini-progress"><div id="summary-fill"></div></div><span id="summary-percent" class="summary-percent">0 %</span></section>
+<div class="toolbar"><div class="filters" role="group" aria-label="Filtrer les classes"><button class="filter-button selected" data-filter="all">Toutes</button><button class="filter-button" data-filter="todo">À faire</button><button class="filter-button" data-filter="done">Terminées</button></div><input class="search" id="class-search" type="search" placeholder="Rechercher une classe…" aria-label="Rechercher une classe"></div>
+<div id="class-list" class="class-list" aria-live="polite"><div class="empty">Chargement des classes…</div></div><p id="sync-status" class="admin-status" role="status">Connexion à la base de données…</p><footer class="footer">Éco-délégués · Collège Olympe de Gouges · Année scolaire 2026–2027</footer></main><script type="module" src="js/boites-noel.js"></script></body></html>
