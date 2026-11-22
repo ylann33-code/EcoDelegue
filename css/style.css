@@ -11,3 +11,38 @@
 
 .calendar-page-frame{height:min(76vh,820px);min-height:520px}.calendar-page-frame iframe{display:block;width:100%;height:100%;min-height:520px;border:0}
 @media(max-width:760px){.calendar-page-frame{height:68vh;min-height:460px}.calendar-page-frame iframe{min-height:460px}}
+
+
+/* Suivi de la récolte des boîtes de Noël – étape 2 */
+.harvest-total-card{text-align:center;margin-bottom:14px;padding:30px}
+.harvest-total{display:block;font:800 clamp(54px,9vw,88px) Manrope;color:var(--forest);line-height:1.1;margin:8px 0}
+.harvest-label{display:block;font-weight:700;color:#39834d;font-size:17px}
+.harvest-total-card .muted{margin:12px 0 0;font-size:13px}
+.harvest-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.harvest-stats section{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.harvest-stats .summary-label{width:100%}
+.harvest-stats strong{font:800 30px Manrope;color:var(--forest)}
+.harvest-stats small{color:var(--muted)}
+.harvest-update-card{margin-bottom:14px}
+.harvest-update-card h2{font:800 21px Manrope;margin:0 0 8px}
+.harvest-history-list{display:grid;gap:8px}
+.harvest-history-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:13px 0;border-bottom:1px solid var(--line)}
+.harvest-history-row:last-child{border-bottom:0}
+.harvest-history-row time{font-size:12px;color:var(--muted)}
+.harvest-history-row strong,.harvest-history-row small{display:block;text-align:right}
+.harvest-history-row strong{font-size:14px;color:var(--forest)}
+.harvest-history-row small{font-size:12px;color:#39834d;margin-top:4px}
+@media(max-width:760px){.harvest-stats{grid-template-columns:1fr 1fr}.harvest-history-row{align-items:flex-start;flex-direction:column;gap:5px}.harvest-history-row strong,.harvest-history-row small{text-align:left}}
+
+.gift-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.gift-rain span{position:absolute;top:-35px;left:var(--gift-left);font-size:20px;opacity:0;animation:gift-fall var(--gift-duration) linear var(--gift-delay) infinite}
+.gift-rain span:nth-child(1){--gift-left:8%;--gift-duration:5.8s;--gift-delay:0s}
+.gift-rain span:nth-child(2){--gift-left:28%;--gift-duration:7s;--gift-delay:1.3s}
+.gift-rain span:nth-child(3){--gift-left:48%;--gift-duration:6.2s;--gift-delay:2.1s}
+.gift-rain span:nth-child(4){--gift-left:67%;--gift-duration:7.5s;--gift-delay:.6s}
+.gift-rain span:nth-child(5){--gift-left:82%;--gift-duration:6.6s;--gift-delay:3s}
+.gift-rain span:nth-child(6){--gift-left:92%;--gift-duration:7.2s;--gift-delay:1.8s}
+.gift-rain span:nth-child(7){--gift-left:38%;--gift-duration:6.9s;--gift-delay:4s}
+@keyframes gift-fall{0%{transform:translate3d(0,-15px,0) rotate(-15deg);opacity:0}12%{opacity:.8}88%{opacity:.7}100%{transform:translate3d(25px,230px,0) rotate(35deg);opacity:0}}
+.hero>div:not(.gift-rain){position:relative;z-index:1}
+@media(prefers-reduced-motion:reduce){.gift-rain span{animation:none;display:none}}
