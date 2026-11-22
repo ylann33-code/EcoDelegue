@@ -21,8 +21,8 @@
       "page": "boites-noel-recolte.html",
       "icon": "gift",
       "status": "COLLECTE",
-      "dates": "À partir du 29 novembre 2026",
-      "visibleFrom": "2026-11-22",
+      "dates": "À partir du 10 novembre 2026",
+      "visibleFrom": "2026-10-22",
       "progressSource": "boitesNoelEtape2"
     }
   ]
