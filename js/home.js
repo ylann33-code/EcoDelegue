@@ -2,6 +2,103 @@ import { connectFirebase, ref, onValue } from "./firebase.js";
 
 const $ = id => document.getElementById(id);
 
+const projectIcons = {
+  gift: '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M2 9h20v4H2zM12 9v12M12 9c-5 0-7-1-7-4 0-2 2-3 4-2 2 1 3 6 3 6Zm0 0c5 0 7-1 7-4 0-2-2-3-4-2-2 1-3 6-3 6Z"/>',
+  leaf: '<path d="M20 4C10 4 4 8 4 15a5 5 0 0 0 5 5c7 0 11-7 11-16Z"/><path d="M3 21c4-6 8-9 14-13"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'
+};
+
+function renderProjects(projects) {
+  const container = $("project-list");
+  if (!container) return;
+  const validProjects = projects.filter(project =>
+    project && typeof project.title === "string" &&
+    typeof project.page === "string" &&
+    /^[a-zA-Z0-9_./-]+\.html$/.test(project.page) &&
+    !project.page.startsWith("/") && !project.page.split("/").includes("..")
+  );
+  if (!validProjects.length) {
+    container.innerHTML = '<p class="empty">Aucun projet pour le moment.</p>';
+    return;
+  }
+  container.replaceChildren(...validProjects.map(project => {
+    const link = document.createElement("a");
+    link.className = "project-item project-link";
+    link.href = project.page;
+    link.setAttribute("aria-label", "Ouvrir le projet " + project.title);
+    const thumb = document.createElement("span");
+    thumb.className = "project-thumb";
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("viewBox", "0 0 24 24");
+    icon.setAttribute("aria-hidden", "true");
+    icon.setAttribute("fill", "none");
+    icon.setAttribute("stroke", "currentColor");
+    icon.setAttribute("stroke-width", "1.8");
+    icon.setAttribute("stroke-linecap", "round");
+    icon.setAttribute("stroke-linejoin", "round");
+    icon.innerHTML = projectIcons[project.icon] || projectIcons.leaf;
+    thumb.append(icon);
+    const details = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = project.title;
+    const description = document.createElement("span");
+    description.className = "project-description-short";
+    description.textContent = project.shortDescription || project.description || "";
+    details.append(title, description);
+    link.append(thumb, details);
+    return link;
+  }));
+}
+
+async function loadProjects() {
+  const container = $("project-list");
+  try {
+    const response = await fetch("data/projects.json");
+    if (!response.ok) throw new Error("Catalogue des projets indisponible");
+    const config = await response.json();
+    if (!config || !Array.isArray(config.projects)) throw new Error("Format du catalogue invalide");
+    renderProjects(config.projects);
+    const featured = config.projects.find(project => project.id === config.featuredProjectId) || config.projects[0];
+    if (featured) {
+      if ($("project-title")) $("project-title").textContent = featured.title;
+      if ($("project-description")) $("project-description").textContent = featured.description || "";
+      if ($("project-dates")) $("project-dates").textContent = featured.dates || "";
+      const badge = document.querySelector(".hero .pill");
+      if (badge) badge.textContent = featured.status || "PROJET À LA UNE";
+      if (featured.progressSource === "boitesNoel") loadChristmasProgress();
+      else {
+        const progress = document.querySelector(".hero-progress");
+        if (progress) progress.hidden = true;
+      }
+    } else {
+      if (container) container.innerHTML = '<p class="empty">Aucun projet à afficher.</p>';
+    }
+  } catch (error) {
+    console.error("Chargement des projets impossible :", error);
+    if (container) container.innerHTML = '<p class="empty">Impossible de charger les projets.</p>';
+  }
+}
+
+async function loadChristmasProgress() {
+  try {
+    const classesResponse = await fetch("data/classes.json");
+    if (!classesResponse.ok) throw new Error("Impossible de charger data/classes.json");
+    const classes = await classesResponse.json();
+    const total = Array.isArray(classes) ? classes.length : 0;
+    const db = await connectFirebase();
+    onValue(ref(db, "boitesNoel/status"), snapshot => {
+      const statuses = snapshot.val() || {};
+      const done = Array.isArray(classes) ? classes.filter(item => statuses[item.id]?.completed === true).length : 0;
+      const pct = total ? Math.round(done / total * 100) : 0;
+      if ($("progress-fill")) $("progress-fill").style.width = pct + "%";
+      if ($("progress-percent")) $("progress-percent").textContent = pct + " %";
+    }, error => console.error("Lecture progression Firebase :", error));
+  } catch (error) {
+    console.error("Initialisation de la progression impossible :", error);
+    if ($("progress-percent")) $("progress-percent").textContent = "— %";
+  }
+}
+
 async function loadUsefulLinks() {
   const container = $("useful-links-container");
   if (!container) return;
@@ -44,7 +141,7 @@ async function loadLatestDocument() {
     const dateValue = value => {
       if (!value) return 0;
       const text = String(value).trim();
-      const fr = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+      const fr = text.match(/^(\d{1,2})[\\/.\\-](\d{1,2})[\\/.\\-](\d{4})$/);
       if (fr) return new Date(Number(fr[3]), Number(fr[2]) - 1, Number(fr[1])).getTime();
       return Date.parse(text) || 0;
     };
@@ -77,30 +174,21 @@ async function loadLatestDocument() {
   }
 }
 
-async function start() {
-  await Promise.all([loadUsefulLinks(), loadLatestDocument()]);
+async function loadWelcomeContent() {
   try {
-    const classesResponse = await fetch("data/classes.json");
-    if (!classesResponse.ok) throw new Error("Impossible de charger data/classes.json");
-    const classes = await classesResponse.json();
-    const total = Array.isArray(classes) ? classes.length : 0;
     const db = await connectFirebase();
-    onValue(ref(db, "boitesNoel/status"), snapshot => {
-      const statuses = snapshot.val() || {};
-      const done = Array.isArray(classes) ? classes.filter(item => statuses[item.id]?.completed === true).length : 0;
-      const pct = total ? Math.round(done / total * 100) : 0;
-      if ($("progress-fill")) $("progress-fill").style.width = pct + "%";
-      if ($("progress-percent")) $("progress-percent").textContent = pct + " %";
-    }, error => console.error("Lecture progression Firebase :", error));
     onValue(ref(db, "dashboard/content"), snapshot => {
       const data = snapshot.val() || {};
-      if (data.projectTitle && $("project-title")) $("project-title").textContent = data.projectTitle;
-      if (data.projectDescription && $("project-description")) $("project-description").textContent = data.projectDescription;
-      if (data.projectDates && $("project-dates")) $("project-dates").textContent = data.projectDates;
       if (data.welcomeTitle && $("welcome-title")) $("welcome-title").textContent = data.welcomeTitle;
       if (data.welcomeText && $("welcome-text")) $("welcome-text").textContent = data.welcomeText;
-    }, error => console.error("Lecture tableau de bord Firebase :", error));
-  } catch (error) { console.error("Initialisation de l'accueil impossible :", error); }
+    }, error => console.error("Lecture du contenu d'accueil Firebase :", error));
+  } catch (error) {
+    console.error("Initialisation du contenu d'accueil impossible :", error);
+  }
+}
+
+async function start() {
+  await Promise.all([loadProjects(), loadUsefulLinks(), loadLatestDocument(), loadWelcomeContent()]);
 }
 
 start();
