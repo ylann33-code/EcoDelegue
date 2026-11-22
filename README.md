@@ -64,3 +64,55 @@ La publication des annonces passe par une Firebase Cloud Function côté serveur
 
 
 Pour configurer le code des annonces avec Realtime Database uniquement, consulte `README-MOT-DE-PASSE.md`.
+
+
+## Icônes des projets
+
+Les icônes des cartes de projets sont dessinées en SVG dans `projectIcons`, dans `js/home.js`. Pour choisir une icône, indiquez son identifiant dans le champ `icon` de l'objet correspondant dans `data/projects.json`.
+
+| Identifiant | Description |
+|---|---|
+| `gift` | Un cadeau, pour les collectes et les dons. |
+| `leaf` | Une feuille, pour les projets écologiques. |
+| `calendar` | Un calendrier, pour les événements et les dates importantes. |
+| `sprout` | Une jeune pousse, pour le jardinage et la nature. |
+| `recycle` | Le symbole du recyclage, pour le tri et la récupération. |
+| `globe` | Un globe terrestre, pour les projets liés à la planète. |
+| `water` | Une goutte d'eau, pour les projets autour de l'eau. |
+| `sun` | Un soleil, pour l'énergie solaire. |
+| `wind` | Le vent, pour les énergies renouvelables. |
+| `tree` | Un arbre, pour les plantations et la biodiversité. |
+| `flower` | Une fleur, pour les plantes et les insectes. |
+| `bike` | Un vélo, pour les déplacements écologiques. |
+| `school` | Une école, pour les projets concernant le collège. |
+| `heart` | Un cœur, pour les projets solidaires. |
+| `hands` | Des mains, pour l'entraide et la solidarité. |
+| `book` | Un livre, pour l'éducation et la sensibilisation. |
+| `bottle` | Une bouteille, pour les collectes de contenants. |
+| `trash` | Une poubelle, pour le nettoyage et la réduction des déchets. |
+| `food` | Un aliment, pour les projets autour de l'alimentation. |
+| `community` | Un groupe de personnes, pour les projets collectifs. |
+| `seed` | Une graine, pour les plantations et la végétalisation. |
+
+Exemple dans `data/projects.json` :
+
+```json
+{
+  "icon": "sprout"
+}
+```
+
+## Dates des projets
+
+Le champ `visibleFrom` définit le premier jour où la carte d'un projet apparaît sur l'accueil. Le champ `editableUntil` définit le dernier jour où les modifications sont autorisées. La date de fin est incluse : le projet reste modifiable toute cette journée (heure de Paris), puis passe en consultation uniquement le lendemain.
+
+Exemple :
+
+```json
+{
+  "visibleFrom": "2026-11-29",
+  "editableUntil": "2026-12-12"
+}
+```
+
+Pour l'opération boîtes de Noël 2026, l'étape 1 est modifiable jusqu'au 28 novembre inclus et l'étape 2 jusqu'au 12 décembre inclus.
