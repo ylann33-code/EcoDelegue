@@ -95,6 +95,14 @@ async function loadChristmasHarvestTotal() {
     const progress = document.querySelector(".hero-progress");
     const track = document.querySelector(".hero-progress .progress-track");
     if (track) track.hidden = true;
+    const hero = document.querySelector(".hero");
+    if (hero && !hero.querySelector(".gift-rain")) {
+      const rain = document.createElement("div");
+      rain.className = "gift-rain";
+      rain.setAttribute("aria-hidden", "true");
+      rain.innerHTML = '<span>🎁</span><span>🎄</span><span>🎁</span><span>✨</span><span>🎁</span><span>⭐</span><span>🎁</span>';
+      hero.append(rain);
+    }
     onValue(ref(db, "boitesNoelEtape2/currentTotal"), snapshot => {
       const total = Number(snapshot.val() || 0);
       if ($("progress-percent")) $("progress-percent").textContent = total.toLocaleString("fr-FR") + (total > 1 ? " boîtes" : " boîte");
